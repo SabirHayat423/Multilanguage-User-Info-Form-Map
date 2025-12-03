@@ -1,8 +1,8 @@
-
 const CSC_CONFIG = {
   cUrl: 'https://api.countrystatecity.in/v1',
   ckey: 'NHhvOEcyWk50N2Vna3VFTE00bFp3MjFKR0ZEOUhkZlg4RTk1MlJlaA=='
 };
+
 const firstNameInput = document.getElementById('firstName');
 const lastNameInput = document.getElementById('lastName');
 const emailInput = document.getElementById('email');
@@ -17,6 +17,7 @@ const cityInput = $('#city');
 const tagInput = document.getElementById('tagInput');
 const tagBox = document.getElementById('tagBox');
 const tagCount = document.getElementById('tagCount');
+const tagSuggestionBox = document.getElementById("tagSuggestions");
 
 let maxTags = 20;
 let tags = [];
@@ -39,7 +40,7 @@ function updateTagCount() {
 
 function createTags() {
   tagBox.querySelectorAll('.tag').forEach(li => li.remove());
-  tags.slice().reverse().forEach(tag => {
+  tags.slice().forEach(tag => {
     const li = document.createElement('li');
     li.classList.add('tag');
     li.innerHTML = `${tag} <i onclick="removeTag(this,'${tag}')">×</i>`;
@@ -54,21 +55,74 @@ function removeTag(element, tag) {
   updateTagCount();
 }
 
+function getUsedTags() {
+  const allTags = users.flatMap(u => u.tags);
+  return [...new Set(allTags)];
+}
+
 tagInput.addEventListener('keyup', e => {
+  const value = tagInput.value.toLowerCase().trim();
+
+  if (value.length > 1) {
+    const usedTags = getUsedTags();
+    const filtered = usedTags.filter(s =>
+      s.toLowerCase().includes(value) && !tags.includes(s)
+    );
+
+    if (filtered.length > 0) {
+      tagSuggestionBox.innerHTML = "";
+      filtered.forEach(suggestion => {
+        const div = document.createElement("div");
+        div.textContent = suggestion;
+
+        div.onclick = () => {
+          if (!tags.includes(suggestion) && tags.length < maxTags) {
+            tags.push(suggestion);
+            createTags();
+          }
+          tagInput.value = "";
+          tagSuggestionBox.style.display = "none";
+        };
+
+        tagSuggestionBox.appendChild(div);
+      });
+      tagSuggestionBox.style.display = "block";
+    } else {
+      tagSuggestionBox.style.display = "none";
+    }
+  } else {
+    tagSuggestionBox.style.display = "none";
+  }
+
   if (e.key === 'Enter' || e.key === ',') {
-    let value = tagInput.value.replace(/,/g, '').trim();
-    if (value && !tags.includes(value) && tags.length < maxTags) {
-      tags.push(value);
+    e.preventDefault();
+    let newTag = tagInput.value.replace(/,/g, '').trim();
+
+    if (newTag && !tags.includes(newTag) && tags.length < maxTags) {
+      tags.push(newTag);
       createTags();
     }
-    tagInput.value = '';
-    e.preventDefault();
+
+    tagInput.value = "";
+    tagSuggestionBox.style.display = 'none';
+  }
+});
+tagInput.addEventListener("blur", () => {
+  setTimeout(() => tagSuggestionBox.style.display = "none", 200);
+});
+tagInput.addEventListener('keydown', event => {
+  if (tagInput.value.trim() !== "") return;
+
+  if (event.key === "Backspace") {
+    if (tags.length > 0) {
+      tags.pop();
+      createTags();
+    }
   }
 });
 
 tagInput.addEventListener('focus', () => tagBox.classList.add('always-active'));
 tagInput.addEventListener('blur', () => tagBox.classList.remove('always-active'));
-
 function showToast(message, type = "success") {
   const toast = document.createElement("div");
   toast.className = `px-4 py-3 rounded-lg shadow-md text-white ${type === "success" ? "bg-green-500" : "bg-red-500"} transition transform animate-fadeInUp`;
@@ -81,7 +135,6 @@ function isValidEmail(email) {
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailPattern.test(email);
 }
-
 function resetForm() {
   firstNameInput.value = "";
   lastNameInput.value = "";
@@ -183,6 +236,7 @@ function renderUsers() {
       <p class="w-full"><span class="font-semibold text-[#14532d]">Tags:</span></p>
       ${tagsDisplay}
     `;
+
     card.querySelector(".edit-btn").addEventListener("click", () => {
       editMode = true;
       currentEditId = user.id;
@@ -224,7 +278,6 @@ submitButton.addEventListener("click", () => {
   const city = cityInput.val();
   const countryName = countryInput.find('option:selected').text();
   const stateName = stateInput.find('option:selected').text();
-
   if (!firstName || !lastName || !email || !password || !country || !state || !city) {
     showToast("Please fill all fields!", "error");
     return;
@@ -278,27 +331,18 @@ cancelButton.addEventListener('click', () => {
 });
 
 function initCountrySelect2() {
-  $('.country-select-placeholder').remove()
+  $('.country-select-placeholder').remove();
   countryInput.select2({
     ajax: {
       url: `${CSC_CONFIG.cUrl}/countries`,
       dataType: 'json',
       delay: 250,
       headers: { "X-CSCAPI-KEY": CSC_CONFIG.ckey },
-      data: function (params) {
-        return {
-          search: params.term
-        };
-      },
+      data: function (params) { return { search: params.term }; },
       processResults: function (data, params) {
         const searchTerm = (params.term || '').toLowerCase();
-        const filteredData = data
-          .filter(country => country.name.toLowerCase().includes(searchTerm))
-          .map(country => ({
-            id: country.iso2,
-            text: country.name
-          }));
-
+        const filteredData = data.filter(country => country.name.toLowerCase().includes(searchTerm))
+                                 .map(country => ({ id: country.iso2, text: country.name }));
         return { results: filteredData };
       },
       cache: true
@@ -307,16 +351,13 @@ function initCountrySelect2() {
     minimumInputLength: 0,
     width: '100%',
     dropdownParent: countryInput.parent(),
-    language: {
-      searching: function() { return ''; },
-      noResults: function() { return 'No results found'; }
-    }
+    language: { searching: () => '', noResults: () => 'No results found' }
   });
   maintainActive(countryInput);
 }
 
 function initStateSelect2() {
-  $('.state-select-placeholder').remove()
+  $('.state-select-placeholder').remove();
   stateInput.select2({
     ajax: {
       url: function() {
@@ -327,20 +368,11 @@ function initStateSelect2() {
       dataType: 'json',
       delay: 250,
       headers: { "X-CSCAPI-KEY": CSC_CONFIG.ckey },
-      data: function (params) {
-        return {
-          search: params.term
-        };
-      },
+      data: function (params) { return { search: params.term }; },
       processResults: function (data, params) {
         const searchTerm = (params.term || '').toLowerCase();
-        const filteredData = data
-          .filter(state => state.name.toLowerCase().includes(searchTerm))
-          .map(state => ({
-            id: state.iso2,
-            text: state.name
-          }));
-
+        const filteredData = data.filter(state => state.name.toLowerCase().includes(searchTerm))
+                                 .map(state => ({ id: state.iso2, text: state.name }));
         return { results: filteredData };
       },
       cache: true
@@ -349,16 +381,13 @@ function initStateSelect2() {
     minimumInputLength: 0,
     width: '100%',
     dropdownParent: stateInput.parent(),
-    language: {
-      searching: function() { return ''; },
-      noResults: function() { return 'No results found'; }
-    }
+    language: { searching: () => '', noResults: () => 'No results found' }
   });
   maintainActive(stateInput);
 }
 
 function initCitySelect2() {
-  $('.city-select-placeholder').remove()
+  $('.city-select-placeholder').remove();
   cityInput.select2({
     ajax: {
       url: function() {
@@ -370,20 +399,11 @@ function initCitySelect2() {
       dataType: 'json',
       delay: 250,
       headers: { "X-CSCAPI-KEY": CSC_CONFIG.ckey },
-      data: function (params) {
-        return {
-          search: params.term
-        };
-      },
+      data: function (params) { return { search: params.term }; },
       processResults: function (data, params) {
         const searchTerm = (params.term || '').toLowerCase();
-        const filteredData = data
-          .filter(city => city.name.toLowerCase().includes(searchTerm))
-          .map(city => ({
-            id: city.name,
-            text: city.name
-          }));
-
+        const filteredData = data.filter(city => city.name.toLowerCase().includes(searchTerm))
+                                 .map(city => ({ id: city.name, text: city.name }));
         return { results: filteredData };
       },
       cache: true
@@ -392,14 +412,10 @@ function initCitySelect2() {
     minimumInputLength: 0,
     width: '100%',
     dropdownParent: cityInput.parent(),
-    language: {
-      searching: function() { return ''; },
-      noResults: function() { return 'No results found'; }
-    }
+    language: { searching: () => '', noResults: () => 'No results found' }
   });
   maintainActive(cityInput);
 }
-
 
 async function drawCountryBoundary(countryName) {
   if (countryBoundaryLayer) {
@@ -410,29 +426,16 @@ async function drawCountryBoundary(countryName) {
   if (!countryName) return;
 
   try {
-    const searchRes = await fetch(
-      `https://nominatim.openstreetmap.org/search?country=${encodeURIComponent(countryName)}&format=json&polygon_geojson=1&limit=1`
-    );
+    const searchRes = await fetch(`https://nominatim.openstreetmap.org/search?country=${encodeURIComponent(countryName)}&format=json&polygon_geojson=1&limit=1`);
     const searchData = await searchRes.json();
 
-    if (!searchData || searchData.length === 0 || !searchData[0].geojson) {
-      console.log("No boundary data found for:", countryName);
-      return;
-    }
+    if (!searchData || searchData.length === 0 || !searchData[0].geojson) return;
 
     const geojsonData = searchData[0].geojson;
-
     countryBoundaryLayer = L.geoJSON(geojsonData, {
-      style: function (feature) {
-        return {
-          color: "red",      
-          weight: 3,         
-          opacity: 0.7,      
-          fillColor: "blue",  
-          fillOpacity: 0.1   
-        };
-      }
+      style: { color: "red", weight: 3, opacity: 0.7, fillColor: "blue", fillOpacity: 0.1 }
     }).addTo(map);
+
     map.fitBounds(countryBoundaryLayer.getBounds());
 
   } catch (err) {
@@ -440,7 +443,6 @@ async function drawCountryBoundary(countryName) {
     showToast("Failed to load country boundary on map", "error");
   }
 }
-
 
 async function updateMap() {
   const countryName = countryInput.find('option:selected').text();
@@ -450,91 +452,53 @@ async function updateMap() {
 
   let query = '';
 
-  if (cityInput.val()) {
-    query = `${cityName}, ${stateName}, ${countryName}`;
-  } else if (stateInput.val()) {
-    query = `${stateName}, ${countryName}`;
-  } else if (countryInput.val()) {
-    return;
-  } else {
+  if (cityInput.val()) query = `${cityName}, ${stateName}, ${countryName}`;
+  else if (stateInput.val()) query = `${stateName}, ${countryName}`;
+  else if (!countryInput.val()) {
     if (marker) marker.remove();
     map.setView([20, 0], 2);
     return;
-  }
+  } else return;
+
   try {
     const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
     const data = await res.json();
     if (!data.length) return showToast("Location not found on map", "error");
 
-    const lat = data[0].lat;
-    const lon = data[0].lon;
+    const { lat, lon } = data[0];
 
     if (marker) marker.remove();
-    marker = L.marker([lat, lon]).addTo(map);
-
+    marker = L.marker([lat, lon]).addTo(map)
+      .bindPopup(query)
+      .openPopup();
+    
     map.setView([lat, lon], cityInput.val() ? 4 : 4);
 
   } catch (err) {
-    console.error("Error updating map:", err);
-    showToast("Failed to update map", "error");
+    console.error(err);
   }
 }
 
-
-function attachSelect2Handlers() {
-  countryInput.on('change', function (e) {
-    const countryCode = $(this).val();
-    stateInput.val(null).trigger('change');
-    cityInput.val(null).trigger('change');
-
-    if (countryCode) {
-      stateInput.prop('disabled', false);
-    } else {
-      stateInput.prop('disabled', true);
-      stateInput.val(null).trigger('change');
-      cityInput.prop('disabled', true);
-      cityInput.val(null).trigger('change');
-    }
-    updateMap(); 
-  });
-
-  stateInput.on('change', function (e) {
-    const stateCode = $(this).val();
-    cityInput.val(null).trigger('change');
-
-    if (stateCode) {
-      cityInput.prop('disabled', false);
-    } else {
-      cityInput.prop('disabled', true);
-      cityInput.val(null).trigger('change');
-    }
-    updateMap(); 
-  });
-
-  cityInput.on('change', updateMap);
-}
-
-$(document).ready(function () {
-  initCountrySelect2();
-  initStateSelect2();
-  initCitySelect2();
-  attachSelect2Handlers();
-  createTags();
-  stateInput.prop('disabled', true);
-  cityInput.prop('disabled', true);
-
-  $(document).on("select2:open", () => {
-    const searchField = document.querySelector(".select2-container--open .select2-search__field");
-    if(searchField) searchField.focus();
-  });
+countryInput.on('change', () => {
+  stateInput.val(null).trigger('change');
+  cityInput.val(null).trigger('change');
+  updateMap();
 });
-const style = document.createElement('style');
-style.textContent = `
-  .select2-results__option--loading {
-    display: none !important;
-  }
-  .select2-results__message {
-    display: none !important;
-  }
-`;
-document.head.appendChild(style);
+
+stateInput.on('change', () => {
+  cityInput.val(null).trigger('change');
+  updateMap();
+});
+
+cityInput.on('change', () => updateMap());
+
+initCountrySelect2();
+initStateSelect2();
+initCitySelect2();
+
+$(document).on("select2:open", function () {
+  setTimeout(() => {
+    const searchField = document.querySelector(".select2-container--open .select2-search__field");
+    if (searchField) searchField.focus();
+  }, 10);
+});

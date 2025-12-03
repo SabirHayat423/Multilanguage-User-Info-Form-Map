@@ -214,3 +214,44 @@ select.select2-hidden-accessible,
   font-size: 14px;
   transition: transform 0.2s ease, box-shadow 0.2s ease !important;
 }
+#tagSuggestions {
+  position: absolute;
+   background-color: #c9e6ef; 
+  color: #14532d; 
+  width: 100%;
+  border: 1px solid #ccc;
+  display: none;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 30;
+  top: 310px;
+  border-radius: 5px;
+  right: 2px;
+}
+#tagSuggestions div {
+  padding: 6px 10px;
+  cursor: pointer;
+}
+#tagSuggestions div:hover {
+  background: #f0f0f0;
+  border-radius: 5px;
+}
+#tagSuggestions::-webkit-scrollbar {
+    width: 8px;             
+    background: transparent;  
+}
+
+#tagSuggestions::-webkit-scrollbar-track {
+    background: transparent;  
+}
+
+
+
+#tagSuggestions::-webkit-scrollbar-thumb:hover {
+    background: rgba(0,0,0,0.35); 
+}
+#tagSuggestions::-webkit-scrollbar-thumb {
+    background: transparent;
+      border-radius: 4px;
+}
+
