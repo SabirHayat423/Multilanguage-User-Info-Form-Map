@@ -465,40 +465,73 @@ async function updateMap() {
     const data = await res.json();
     if (!data.length) return showToast("Location not found on map", "error");
 
-    const { lat, lon } = data[0];
+    const lat = data[0].lat;
+    const lon = data[0].lon;
 
     if (marker) marker.remove();
-    marker = L.marker([lat, lon]).addTo(map)
-      .bindPopup(query)
-      .openPopup();
-    
-    map.setView([lat, lon], cityInput.val() ? 4 : 4);
+    marker = L.marker([lat, lon]).addTo(map);
+
+    map.setView([lat, lon], cityInput.val() ? 4 : stateInput.val() ? 4 : 4);
 
   } catch (err) {
-    console.error(err);
+    console.error("Error updating map:", err);
+    showToast("Failed to update map", "error");
   }
 }
+function attachSelect2Handlers() {
+  countryInput.on('change', function (e) {
+    const countryCode = $(this).val();
+    stateInput.val(null).trigger('change');
+    cityInput.val(null).trigger('change');
+    
+    if (countryCode) {
+      stateInput.prop('disabled', false);
+    } else {
+      stateInput.prop('disabled', true);
+      stateInput.val(null).trigger('change');
+      cityInput.prop('disabled', true);
+      cityInput.val(null).trigger('change');
+    }
+    updateMap();
+  });
+  
+  stateInput.on('change', function (e) { 
+    const stateCode = $(this).val();
+    cityInput.val(null).trigger('change');
+    
+    if (stateCode) {
+      cityInput.prop('disabled', false);
+    } else {
+      cityInput.prop('disabled', true);
+      cityInput.val(null).trigger('change');
+    }
+    updateMap();
+  });
+  
+  cityInput.on('change', updateMap);
+}
 
-countryInput.on('change', () => {
-  stateInput.val(null).trigger('change');
-  cityInput.val(null).trigger('change');
-  updateMap();
-});
-
-stateInput.on('change', () => {
-  cityInput.val(null).trigger('change');
-  updateMap();
-});
-
-cityInput.on('change', () => updateMap());
-
-initCountrySelect2();
-initStateSelect2();
-initCitySelect2();
-
-$(document).on("select2:open", function () {
-  setTimeout(() => {
+$(document).ready(function () {
+  initCountrySelect2();
+  initStateSelect2();
+  initCitySelect2();
+  attachSelect2Handlers();
+  createTags();
+  stateInput.prop('disabled', true);
+  cityInput.prop('disabled', true);
+  
+  $(document).on("select2:open", () => {
     const searchField = document.querySelector(".select2-container--open .select2-search__field");
-    if (searchField) searchField.focus();
-  }, 10);
+    if(searchField) searchField.focus();
+  });
 });
+const style = document.createElement('style');
+style.textContent = `
+  .select2-results__option--loading {
+    display: none !important;
+  }
+  .select2-results__message {
+    display: none !important;
+  }
+`;
+document.head.appendChild(style);
