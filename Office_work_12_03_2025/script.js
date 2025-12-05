@@ -32,7 +32,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 let marker;
-let countryBoundaryLayer = null;
+let countryBoundaryLayer = [];
 let suggestionIndex = -1;
 function highlightSuggestion(index) {
   const suggestions = tagSuggestionBox.querySelectorAll("div");
@@ -202,8 +202,10 @@ function resetForm() {
   formTitle.textContent = "Create Account";
   cancelButton.classList.add("hidden");
   if (marker) marker.remove();
-  if (countryBoundaryLayer) map.removeLayer(countryBoundaryLayer);
-  countryBoundaryLayer = null;
+  countryBoundaryLayer.forEach(layer => {
+    map.removeLayer(layer);
+  });
+  countryBoundaryLayer = [];
   map.setView([20, 0], 2);
 }
 
@@ -469,10 +471,10 @@ function initCitySelect2() {
 }
 
 async function drawCountryBoundary(countryName) {
-  if (countryBoundaryLayer) {
-    map.removeLayer(countryBoundaryLayer);
-    countryBoundaryLayer = null;
-  }
+  countryBoundaryLayer.forEach(layer => {
+    map.removeLayer(layer);
+  });
+  countryBoundaryLayer = []; 
 
   if (!countryName) return;
 
@@ -483,11 +485,14 @@ async function drawCountryBoundary(countryName) {
     if (!searchData || searchData.length === 0 || !searchData[0].geojson) return;
 
     const geojsonData = searchData[0].geojson;
-    countryBoundaryLayer = L.geoJSON(geojsonData, {
-      style: { color: "red", weight: 3, opacity: 0.7, fillColor: "blue", fillOpacity: 0.1 }
+    const newLayer = L.geoJSON(geojsonData, {
+      style: { color: "red", weight: 2, opacity: 0.5, fillColor: "green", fillOpacity: 0.1 }
     }).addTo(map);
+    
+ 
+    countryBoundaryLayer.push(newLayer);
 
-    map.fitBounds(countryBoundaryLayer.getBounds());
+    map.fitBounds(newLayer.getBounds());
 
   } catch (err) {
     console.error("Error drawing country boundary:", err);
