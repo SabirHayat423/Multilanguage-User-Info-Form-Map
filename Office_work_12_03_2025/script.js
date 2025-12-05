@@ -32,7 +32,14 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 let marker;
-let countryBoundaryLayer = null; 
+let countryBoundaryLayer = null;
+let suggestionIndex = -1;
+function highlightSuggestion(index) {
+  const suggestions = tagSuggestionBox.querySelectorAll("div");
+  suggestions.forEach((div, i) => {
+    div.classList.toggle("bg-gray-200", i === index);
+  });
+}
 
 function updateTagCount() {
   tagCount.innerText = `${maxTags - tags.length} tags remaining`;
@@ -60,8 +67,10 @@ function getUsedTags() {
   return [...new Set(allTags)];
 }
 
-tagInput.addEventListener('keyup', e => {
-  const value = tagInput.value.toLowerCase().trim();
+
+function showTagSuggestions(inputValue) {
+  const value = inputValue.toLowerCase().trim();
+  tagSuggestionBox.style.display = 'none'; 
 
   if (value.length > 1) {
     const usedTags = getUsedTags();
@@ -74,7 +83,12 @@ tagInput.addEventListener('keyup', e => {
       filtered.forEach(suggestion => {
         const div = document.createElement("div");
         div.textContent = suggestion;
+        div.onmouseover = () => {
+          suggestionIndex = -1;
+          highlightSuggestion(-1);
+        };
 
+       
         div.onclick = () => {
           if (!tags.includes(suggestion) && tags.length < maxTags) {
             tags.push(suggestion);
@@ -82,16 +96,45 @@ tagInput.addEventListener('keyup', e => {
           }
           tagInput.value = "";
           tagSuggestionBox.style.display = "none";
+          suggestionIndex = -1;
         };
 
         tagSuggestionBox.appendChild(div);
       });
       tagSuggestionBox.style.display = "block";
-    } else {
-      tagSuggestionBox.style.display = "none";
+      suggestionIndex = -1; 
     }
-  } else {
-    tagSuggestionBox.style.display = "none";
+  }
+}
+
+
+tagInput.addEventListener('keyup', e => {
+  const value = tagInput.value.toLowerCase().trim();
+  const suggestions = tagSuggestionBox.querySelectorAll("div");
+
+  if (tagSuggestionBox.style.display === "block" && suggestions.length > 0) {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      suggestionIndex = (suggestionIndex + 1) % suggestions.length;
+      highlightSuggestion(suggestionIndex);
+      return;
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      suggestionIndex = (suggestionIndex - 1 + suggestions.length) % suggestions.length;
+      highlightSuggestion(suggestionIndex);
+      return;
+    } else if (e.key === 'Enter' && suggestionIndex !== -1) {
+      e.preventDefault();
+      suggestions[suggestionIndex].click(); 
+      tagInput.value = ""; 
+      suggestionIndex = -1; 
+      return;
+    }
+  }
+  
+ 
+  if (!['ArrowDown', 'ArrowUp', 'Enter', ','].includes(e.key)) {
+     showTagSuggestions(tagInput.value);
   }
 
   if (e.key === 'Enter' || e.key === ',') {
@@ -110,6 +153,12 @@ tagInput.addEventListener('keyup', e => {
 tagInput.addEventListener("blur", () => {
   setTimeout(() => tagSuggestionBox.style.display = "none", 200);
 });
+
+tagInput.addEventListener('focus', () => {
+  tagBox.classList.add('always-active');
+  showTagSuggestions(tagInput.value); 
+});
+
 tagInput.addEventListener('keydown', event => {
   if (tagInput.value.trim() !== "") return;
 
@@ -123,6 +172,7 @@ tagInput.addEventListener('keydown', event => {
 
 tagInput.addEventListener('focus', () => tagBox.classList.add('always-active'));
 tagInput.addEventListener('blur', () => tagBox.classList.remove('always-active'));
+
 function showToast(message, type = "success") {
   const toast = document.createElement("div");
   toast.className = `px-4 py-3 rounded-lg shadow-md text-white ${type === "success" ? "bg-green-500" : "bg-red-500"} transition transform animate-fadeInUp`;
@@ -135,6 +185,7 @@ function isValidEmail(email) {
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailPattern.test(email);
 }
+
 function resetForm() {
   firstNameInput.value = "";
   lastNameInput.value = "";
@@ -151,7 +202,7 @@ function resetForm() {
   formTitle.textContent = "Create Account";
   cancelButton.classList.add("hidden");
   if (marker) marker.remove();
-  if (countryBoundaryLayer) map.removeLayer(countryBoundaryLayer); 
+  if (countryBoundaryLayer) map.removeLayer(countryBoundaryLayer);
   countryBoundaryLayer = null;
   map.setView([20, 0], 2);
 }
@@ -342,7 +393,7 @@ function initCountrySelect2() {
       processResults: function (data, params) {
         const searchTerm = (params.term || '').toLowerCase();
         const filteredData = data.filter(country => country.name.toLowerCase().includes(searchTerm))
-                                 .map(country => ({ id: country.iso2, text: country.name }));
+          .map(country => ({ id: country.iso2, text: country.name }));
         return { results: filteredData };
       },
       cache: true
@@ -372,7 +423,7 @@ function initStateSelect2() {
       processResults: function (data, params) {
         const searchTerm = (params.term || '').toLowerCase();
         const filteredData = data.filter(state => state.name.toLowerCase().includes(searchTerm))
-                                 .map(state => ({ id: state.iso2, text: state.name }));
+          .map(state => ({ id: state.iso2, text: state.name }));
         return { results: filteredData };
       },
       cache: true
@@ -403,7 +454,7 @@ function initCitySelect2() {
       processResults: function (data, params) {
         const searchTerm = (params.term || '').toLowerCase();
         const filteredData = data.filter(city => city.name.toLowerCase().includes(searchTerm))
-                                 .map(city => ({ id: city.name, text: city.name }));
+          .map(city => ({ id: city.name, text: city.name }));
         return { results: filteredData };
       },
       cache: true
@@ -483,7 +534,7 @@ function attachSelect2Handlers() {
     const countryCode = $(this).val();
     stateInput.val(null).trigger('change');
     cityInput.val(null).trigger('change');
-    
+
     if (countryCode) {
       stateInput.prop('disabled', false);
     } else {
@@ -494,11 +545,11 @@ function attachSelect2Handlers() {
     }
     updateMap();
   });
-  
-  stateInput.on('change', function (e) { 
+
+  stateInput.on('change', function (e) {
     const stateCode = $(this).val();
     cityInput.val(null).trigger('change');
-    
+
     if (stateCode) {
       cityInput.prop('disabled', false);
     } else {
@@ -507,7 +558,7 @@ function attachSelect2Handlers() {
     }
     updateMap();
   });
-  
+
   cityInput.on('change', updateMap);
 }
 
@@ -519,7 +570,7 @@ $(document).ready(function () {
   createTags();
   stateInput.prop('disabled', true);
   cityInput.prop('disabled', true);
-  
+
   $(document).on("select2:open", () => {
     const searchField = document.querySelector(".select2-container--open .select2-search__field");
     if(searchField) searchField.focus();

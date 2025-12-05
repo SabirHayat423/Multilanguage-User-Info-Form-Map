@@ -255,3 +255,21 @@ select.select2-hidden-accessible,
       border-radius: 4px;
 }
 
+#tagSuggestions div.highlighted {
+  background-color: #0f766e;
+  color: white;
+}
+#tagSuggestions div {
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+#tagSuggestions div:focus {
+  outline: none;
+  background: #e0f2fe;
+}
+/* Example CSS for highlighting the focused suggestion */
+#tagSuggestions div.bg-gray-200 {
+  background-color: #ffffff; /* A light gray background */
+  cursor: pointer;
+}
