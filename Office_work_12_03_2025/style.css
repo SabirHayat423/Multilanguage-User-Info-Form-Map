@@ -1,9 +1,12 @@
 body {
-  height: 100%;
+  height: auto;
   width: 100%;
   font-family: Arial, sans-serif;
   overflow-x: hidden !important;
   overflow-y: scroll;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .form-input {
@@ -134,25 +137,7 @@ label[for="country"], label[for="state"], label[for="city"] {
   border-color: #10b981 !important;  
   
 }
- #map {
-      height: 30vh;
-      width: 300px;
-        box-shadow: 6px 6px 20px rgba(0, 0, 0, 0.15),
-              -6px -6px 20px rgba(255, 255, 255, 0.7);
-transition: transform 0.2s ease, box-shadow 0.2s ease;
-     
-    }
-     
-    .maps{
-       position: absolute;
-      bottom: 440px;
-      left: 350px;
-     
-      border: 1px solid #3be4db;
-      object-fit: cover;
-      border-radius: 10px;
-     
-    }
+
     #cityy {
       position: absolute;
       top: 0px;

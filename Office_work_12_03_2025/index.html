@@ -13,14 +13,15 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </head>
-<body class="min-h-screen m-0 p-0 bg-gradient-to-br from-[#fff0f5] via-[#e0f7ff] to-[#e8ffe0]">
+<body class=" m-0 p-0  flex justify-start items-center bg-gradient-to-br from-[#fff0f5] via-[#e0f7ff] to-[#e8ffe0]">
 
 <div id="toast-container" class="fixed top-5 right-5 space-y-2 z-50"></div>
+<div id="full" class="w-full grid lg:grid-cols-3 gap-2 relative m-2 ">
+  
 
-<div class="flex flex-col lg:flex-row w-full min-h-screen">
 
-  <div id="form" class="w-full lg:w-[380px] lg:fixed lg:top-2 lg:left-0 lg:h-screen overflow-y-auto p-0 scrollbar-hide lg:z-50">
-    <form id="signupForm" class="form relative flex flex-col justify-start items-center w-full sm:w-[370px] mt-0 mb-6">
+<div id="form" class="w-full h-[660px] shrink-0 mt-2  ">
+    <form id="signupForm" class="form relative flex flex-col justify-start items-center   mt-0 ">
       <div class="form_back relative flex flex-col justify-start items-center gap-2 rounded-2xl p-4
            bg-gradient-to-br from-[#ffffff] via-[#e8faff] to-[#f5fff3]
            shadow-[6px_6px_20px_rgba(0,0,0,0.15),-6px_-6px_20px_rgba(255,255,255,0.7)]">
@@ -33,10 +34,10 @@
 
         <div id="formTitle" class="text-3xl font-bold text-[#0f766e]">Create Account</div>
 
-        <input placeholder="First Name" type="text" id="firstName" class="form-input" />
-        <input placeholder="Last Name" type="text" id="lastName" class="form-input" />
-        <input placeholder="Email" type="email" id="email" class="form-input" />
-        <input placeholder="Password" type="password" id="password" class="form-input" />
+        <input placeholder="First Name" type="text" id="firstName" class="form-input" autocomplete="off" />
+        <input placeholder="Last Name" type="text" id="lastName" class="form-input" autocomplete="off" />
+        <input placeholder="Email" type="email" id="email" class="form-input" autocomplete="off" />
+        <input placeholder="Password" type="password" id="password" class="form-input" autocomplete="off" />
 
         <div id="tagss" class="flex flex-col w-64 mt-2 ">
           <p class="text-xs font-semibold text-gray-600 mb-1">Add tags (Press enter or comma):</p>
@@ -94,18 +95,56 @@
     </form>
   </div>
 
-   <div class="flex flex-col flex-1 w-full lg:p-1 **order-2** space-y-1 lg:flex-row"> 
+   <div id="rmap" class="w-full relative flex flex-col justify-start items-center mt-2   ">
 
- <div id="map-wrapper" class="w-full h-64 mb-6 lg:h-96 lg:ml-[330px] lg:mb-[10px] flex flex-wrap justify-center lg:justify-start items-start gap-3 w-full p-4 sm:min-w-[300px] md:mb-6 md:min-w-[300px] sm:mb-6">
- <div id="map" class="w-full h-full rounded-xl shadow-[6px_6px_20px_rgba(0,0,0,0.15),-6px_-6px_20px_rgba(255,255,255,0.7)]"></div>
+ <div id="map-wrapper" class="h-64   gap-3   ">
+ <div id="map" class=" h-[233px] rounded-xl shadow-[6px_6px_20px_rgba(0,0,0,0.15),-6px_-6px_20px_rgba(255,255,255,0.7)] w-[300px] object-cover border border-[#3be4db] "></div>
  </div>
  
  <div id="resultContainer" 
-class="flex flex-wrap justify-center lg:justify-start items-start gap-3 w-full p-4 lg:mr-[370px]">
+class=" space-y-2">
  </div>
 
 </div>
+
+ 
+
+<div id="hubsoptt" class="  relative flex flex-col justify-start items-center mt-2 mr-[53px] ">
+<form id="hubspotForm" 
+      class="form_back  gap-2 rounded-2xl p-4
+           bg-gradient-to-br from-[#ffffff] via-[#e8faff] to-[#f5fff3]
+           shadow-[6px_6px_20px_rgba(0,0,0,0.15),-6px_-6px_20px_rgba(255,255,255,0.7)] h-[475px] w-[294px]" >
+    
+    <h2 class="mt-2  sm:text-3xl text-base font-bold text-[#0f766e] text-center sm:text-left p-4">Subscribe Now</h2>
+    
+    <p class=" mb-12 px-3 text-sm sm:text-lg font-medium text-[#0f766e] text-center sm:text-left ">
+        Stay informed by subscribing now to receive timely updates directly to you.
+    </p>
+    
+    <input type="text" name="firstname" placeholder="First Name" required 
+           class="w-full  p-2 mb-2 border border-[#0f766e] rounded-lg text-base focus:border-[#86efac]  focus:ring-1 focus:ring-[#86efac] outline-none bg-transparent " />
+    
+    <input type="email" name="email" placeholder="Email" required 
+           class="w-full  p-2 mb-2 border border-[#0f766e] rounded-lg text-base focus:border-[#86efac] focus:ring-1 focus:ring-[#86efac] outline-none bg-transparent" />
+    
+    <input type="number" name="age" placeholder="Age" required 
+           class="w-full  p-2 mb-2 border border-[#0f766e] rounded-lg text-base focus:border-[#86efac]  focus:ring-1 focus:ring-[#86efac] outline-none bg-transparent" />
+    
+    <button type="submit" 
+            class="w-full  p-2 bg-blue-500 rounded-lg text-white text-base font-medium cursor-pointer hover:bg-blue-700 transition-colors">
+        Submit
+    </button>
+</form>
+
+<p id="response" 
+   class="hidden  left-1/2  transform -translate-x-1/2 sm:translate-x-0  text-center text-sm font-bold"></p>
+
+
+
 </div>
+
+</div>
+
     
 <div class="gtranslate_wrapper"></div>
 <script>
@@ -115,6 +154,14 @@ window.gtranslateSettings = {"default_language":"en","detect_browser_language":t
 <!-- <div class="maps">
 <div id="map"></div>
 </div> -->
+<!-- <div class="hubsopt">
+<script src="https://js-na2.hsforms.net/forms/embed/244535012.js" defer></script>
+<div class="hs-form-frame" data-region="na2" data-form-id="b180fbb2-254a-42ef-8031-131c94daf195" data-portal-id="244535012"></div>
+</div> -->
+
+
+
 <script src="script.js"></script>
+<script src="script1.js"></script>
 </body>
 </html>
