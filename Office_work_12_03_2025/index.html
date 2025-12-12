@@ -16,12 +16,9 @@
 <body class=" m-0 p-0  flex justify-start items-center bg-gradient-to-br from-[#fff0f5] via-[#e0f7ff] to-[#e8ffe0]">
 
 <div id="toast-container" class="fixed top-5 right-5 space-y-2 z-50"></div>
-<div id="full" class="w-full grid lg:grid-cols-3 gap-2 relative m-2 ">
-  
-
-
-<div id="form" class="w-full h-[660px] shrink-0 mt-2  ">
-    <form id="signupForm" class="form relative flex flex-col justify-start items-center   mt-0 ">
+<div id="full" class="w-full grid xl:grid-cols-[2fr_1fr] xl:grid-cols-2  relative m-2">
+<div id="form" class="w-full h-[660px] shrink-0 grid sm:grid-cols-[1fr_3fr]   ">
+    <form id="signupForm" class="form relative flex flex-col items-center sm:items-start   mt-2 sm:m-2 ">
       <div class="form_back relative flex flex-col justify-start items-center gap-2 rounded-2xl p-4
            bg-gradient-to-br from-[#ffffff] via-[#e8faff] to-[#f5fff3]
            shadow-[6px_6px_20px_rgba(0,0,0,0.15),-6px_-6px_20px_rgba(255,255,255,0.7)]">
@@ -36,7 +33,7 @@
 
         <input placeholder="First Name" type="text" id="firstName" class="form-input" autocomplete="off" />
         <input placeholder="Last Name" type="text" id="lastName" class="form-input" autocomplete="off" />
-        <input placeholder="Email" type="email" id="email" class="form-input" autocomplete="off" />
+        <input placeholder="Email" type="email" id="email" class="form-input"/>
         <input placeholder="Password" type="password" id="password" class="form-input" autocomplete="off" />
 
         <div id="tagss" class="flex flex-col w-64 mt-2 ">
@@ -93,21 +90,20 @@
 
       </div>
     </form>
-  </div>
+     <div id="rmap" class="w-full grid lg:grid-cols-[1fr_2fr]  relative flex flex-row sm:justify-start justify-center items-center sm:items-start mt-2 gap-3    ">
 
-   <div id="rmap" class="w-full relative flex flex-col justify-start items-center mt-2   ">
-
- <div id="map-wrapper" class="h-64   gap-3   ">
+ <div id="map-wrapper" class="h-64 gap-3 flex sm:items-start  justify-center items-center">
  <div id="map" class=" h-[233px] rounded-xl shadow-[6px_6px_20px_rgba(0,0,0,0.15),-6px_-6px_20px_rgba(255,255,255,0.7)] w-[300px] object-cover border border-[#3be4db] "></div>
  </div>
  
  <div id="resultContainer" 
-class=" space-y-2">
+class=" mt-[484px] sm:mt-2 flex flex-wrap gap-3 justify-center sm:justify-start items-center">
  </div>
 
 </div>
+  </div>
 
-<div id="hubsoptt" class="  relative flex flex-col justify-start items-center mt-2 lg:mr-[53px] ">
+<div id="hubsoptt" class="  relative flex flex-col justify-start items-center sm:items-start   mt-[234px] sm:m-2 2xl:items-start">
 <form id="hubspotForm" 
       class="form_back  gap-2 rounded-2xl p-4
            bg-gradient-to-br from-[#ffffff] via-[#e8faff] to-[#f5fff3]
@@ -133,32 +129,15 @@ class=" space-y-2">
         Submit
     </button>
 </form>
-
 <p id="response" 
    class="hidden  left-1/2  transform -translate-x-1/2 sm:translate-x-0  text-center text-sm font-bold"></p>
-
-
-
 </div>
-
-</div>
-
-    
+</div>   
 <div class="gtranslate_wrapper"></div>
 <script>
 window.gtranslateSettings = {"default_language":"en","detect_browser_language":true,"languages":["en","fr","it","es","ar","ur","hi","ps","ja","fa","uz","tr","ko","zh-CN","ne","pa","az","no","gu","tl"],"wrapper_selector":".gtranslate_wrapper","flag_size":24,"horizontal_position":"right","vertical_position":"top","flag_style":"3d","alt_flags":{"en":"usa"}}
 </script>
 <script src="https://cdn.gtranslate.net/widgets/latest/popup.js" defer></script>
-<!-- <div class="maps">
-<div id="map"></div>
-</div> -->
-<!-- <div class="hubsopt">
-<script src="https://js-na2.hsforms.net/forms/embed/244535012.js" defer></script>
-<div class="hs-form-frame" data-region="na2" data-form-id="b180fbb2-254a-42ef-8031-131c94daf195" data-portal-id="244535012"></div>
-</div> -->
-
-
-
 <script src="script.js"></script>
 <script src="script1.js"></script>
 </body>
